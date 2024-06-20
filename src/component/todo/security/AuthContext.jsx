@@ -11,10 +11,9 @@ export default function AuthProvider({ children }) {
     //Put some state in the context
     const [number, setNumber] = useState(10)
 
-    setInterval(() => setNumber(number + 1), 10000)
-
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
     return (
-        <AuthContext.Provider value={{ number }}>
+        <AuthContext.Provider value={{ number, isAuthenticated, setIsAuthenticated }}>
             {children}
         </AuthContext.Provider>
     )
