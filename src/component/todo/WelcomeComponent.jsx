@@ -1,24 +1,39 @@
-import axios from 'axios'
-import { useParams, Link } from 'react-router-dom'
+import { useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { getNameHelloWordApi } from "./api/HelloWordApiService";
 
 function WelcomeComponent() {
+  const { username } = useParams();
+  const [msg, setMsg] = useState(null);
 
-    const { username } = useParams()
+  function callHWApi() {
+    getNameHelloWordApi(username)
+      .then((msg) => msgSuccess(msg))
+      .catch((err) => console.error(err))
+      .finally(console.log("finish"));
+  }
+  function msgSuccess({ data }) {
+    setMsg(data.message);
+  }
+  return (
+    <div className="WelcomeComponent">
+      <h1>Welcome {username}</h1>
+      <div>
+        Manage your todos - <Link to="/todos">Go here</Link>
+      </div>
+      <div>
+        <button className="btn btn-success m-5" onClick={callHWApi}>
+          Call Hello World
+        </button>
+      </div>
+      {msg != null ? (
 
-    function callHWApi(){
-        axios.get('http://localhost:8080/hello-world').then( msg => console.log(msg)).catch(err => console.error(err)).finally(console.log('finish'))
-    }
-    return (
-        <div className="WelcomeComponent">
-            <h1>Welcome {username}</h1>
-            <div>
-                Manage your todos - <Link to="/todos">Go here</Link>
-            </div>
-            <div>
-                <button className="btn btn-success m-5" onClick={callHWApi}>Call Hello World</button>
-            </div>
-        </div>
-    )
+      <div class="alert alert-secondary" role="alert">
+        {msg}
+      </div>
+      ) : ''}
+    </div>
+  );
 }
 
-export default WelcomeComponent
+export default WelcomeComponent;
