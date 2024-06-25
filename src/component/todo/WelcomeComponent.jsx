@@ -28,7 +28,7 @@ function WelcomeComponent() {
       </div>
       {msg != null ? (
 
-      <div class="alert alert-secondary" role="alert">
+      <div className="alert alert-secondary" role="alert">
         {msg}
       </div>
       ) : ''}
