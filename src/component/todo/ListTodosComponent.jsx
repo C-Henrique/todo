@@ -3,6 +3,8 @@ import {
   deleteTodoApi,
   retrieveAllTodosForUsernameApi,
 } from "./api/TodosApiService";
+import { useAuth } from "./security/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function ListTodosComponent() {
   const [todos, setTodos] = useState([]);
@@ -10,24 +12,28 @@ function ListTodosComponent() {
   const [message, setMessage] = useState(null);
   
   const [showAlert, setShowAlert] = useState(false);
+  
+  const navigate = useNavigate()
+  const {username} = useAuth()
 
   useEffect(() => refreshTodos(), []);
   function refreshTodos() {
-    retrieveAllTodosForUsernameApi("in28minutes")
+    retrieveAllTodosForUsernameApi(username)
       .then((resp) => setTodos(resp.data))
       .catch((error) => console.error(error))
-      .finally(console.log("finish"));
   }
 
   function deleteTodo(id) {
-    deleteTodoApi("in28minutes", id)
+    deleteTodoApi(username, id)
       .then(() => {
           setMessage(`Todo do id ${id} removida com sucesso.`);
           setShowAlert(true)
         refreshTodos();
       })
       .catch((error) => console.error(error))
-      .finally(console.log("finish"));
+  }
+  function editTodo(id) {
+    navigate(`/todo/${id}`)
   }
   function closedAlert() {
     setShowAlert(false)
@@ -59,6 +65,7 @@ function ListTodosComponent() {
               <th>Is Done?</th>
               <th>Target Date</th>
               <th>Delete</th>
+              <th>Edit</th>
             </tr>
           </thead>
           <tbody>
@@ -70,10 +77,19 @@ function ListTodosComponent() {
                 <td>
                   <button
                     type="button"
-                    class="btn btn-outline-warning"
+                    className="btn btn-warning  btn-sm"
                     onClick={() => deleteTodo(todo.id)}
                   >
                     Delete
+                  </button>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    className="btn btn-primary  btn-sm"
+                    onClick={() => editTodo(todo.id)}
+                  >
+                    Edit
                   </button>
                 </td>
               </tr>
