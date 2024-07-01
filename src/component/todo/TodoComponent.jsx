@@ -1,85 +1,100 @@
-import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { retrieveTodoApi } from "./api/TodosApiService";
-import { useAuth } from "./security/AuthContext";
-import { Field, Form, Formik } from "formik";
+import { useEffect, useState } from 'react'
+import {useParams} from 'react-router-dom'
+import { retrieveTodoApi } from './api/TodoApiService'
+import { useAuth } from './security/AuthContext'
+import {Formik, Form, Field, ErrorMessage} from 'formik'
 
-function TodoComponent() {
-  const { id } = useParams();
-  const { username } = useAuth();
-  const [description, setDescription] = useState("");
-  const [targetDate, setTargetDate] = useState("");
+export default function TodoComponent() {
+    
+    const {id} = useParams()
+    
+    const[description, setDescription] = useState('')
+    const[targetDate, setTargetDate] = useState('')
 
-  function retrieveTodo() {
-    retrieveTodoApi(username, id)
-      .then((respo) => {
-        console.log(respo);
-        setDescription(respo.data.description);
-        setTargetDate(respo.data.targetDate);
-      })
-      .catch((error) => console.log(error));
-  }
+    const authContext = useAuth()
+    
+    const username = authContext.username
+    
+    useEffect(
+        () => retrieveTodos(),
+        [id]
+        )
 
-  useEffect(() => retrieveTodo(), [id]);
+    function retrieveTodos(){
+        
+        retrieveTodoApi(username, id)
+        .then(response => {
+            setDescription(response.data.description)
+            setTargetDate(response.data.targetDate)
+        })
+        .catch(error => console.log(error))
+    }
 
-  function onSubmit(values) {
-    console.log(values);
-  }
+    function onSubmit(values) {
+        console.log(values)
+    }
 
-  return (
-    <div className="container mt-5">
-      <h1 className="mb-4 text-center">Enter Todo Details</h1>
+    function validate(values) {
+        let errors = {
+            // description: 'Enter a valid description',
+            // targetDate: 'Enter a valid target date'
+        }
 
-      <div className="mb-5 text-center">
-        <h6 style={{ textDecoration: "green wavy underline" }}>
-          Description: <span>{description}</span>
-        </h6>
-      </div>
+        if(values.description.length<5) {
+            errors.description = 'Enter atleast 5 characters'
+        }
 
-      <div className="row justify-content-center">
-        <div className="col-md">
-          <Formik
-            initialValues={{
-              description,
-              targetDate,
-            }}
-            enableReinitialize={true}
-            onSubmit={onSubmit}
-          >
-            <Form>
-              <div className="form-group row mb-3">
-                <label className="col-md-6 col-form-label">Description</label>
-                <div className="col-sm-4">
-                  <Field
-                    type="text"
-                    className="form-control"
-                    name="description"
-                  />
-                </div>
-              </div>
-              <div className="form-group row mb-3">
-                <label className="col-md-6 col-form-label">Target Date</label>
-                <div className="col-sm-4">
-                  <Field
-                    type="date"
-                    className="form-control"
-                    name="targetDate"
-                  />
-                </div>
-              </div>
-              <div className="form-group row">
-                <div className="col-sm-4 offset-sm-4">
-                  <button type="submit" className="btn btn-success m-5">
-                    Save
-                  </button>
-                </div>
-              </div>
-            </Form>
-          </Formik>
+        if(values.targetDate == null) {
+            errors.targetDate = 'Enter a target date'
+        }
+
+        console.log(values)
+        return errors
+    }
+
+    return (
+        <div className="container">
+            <h1>Enter Todo Details </h1>
+            <div>
+                <Formik initialValues={ { description, targetDate } } 
+                    enableReinitialize = {true}
+                    onSubmit = {onSubmit}
+                    validate = {validate}
+                    validateOnChange = {false}
+                    validateOnBlur = {false}
+                >
+                {
+                    (props) => (
+                        <Form>
+                            <ErrorMessage 
+                                name="description"
+                                component="div"
+                                className = "alert alert-warning"
+                            />
+                            
+                            <ErrorMessage 
+                                name="targetDate"
+                                component="div"
+                                className = "alert alert-warning"
+                            />
+
+                            <fieldset className="form-group">
+                                <label>Description</label>
+                                <Field type="text" className="form-control" name="description" />
+                            </fieldset>
+                            <fieldset className="form-group">
+                                <label>Target Date</label>
+                                <Field type="date" className="form-control" name="targetDate"/>
+                            </fieldset>
+                            <div>
+                                <button className="btn btn-success m-5" type="submit">Save</button>
+                            </div>
+                        </Form>
+                    )
+                }
+                </Formik>
+            </div>
+
         </div>
-      </div>
-    </div>
-  );
+    )
 }
-
-export default TodoComponent;
