@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getNameHelloWordApi } from "./api/HelloWordApiService";
+import { useAuth } from "./security/AuthContext";
 
 function WelcomeComponent() {
   const { username } = useParams();
+  const {token} = useAuth();
   const [msg, setMsg] = useState(null);
 
   function callHWApi() {
-    getNameHelloWordApi(username)
+    getNameHelloWordApi(username, token)
       .then((msg) => msgSuccess(msg))
       .catch((err) => console.error(err))
       .finally(console.log("finish"));

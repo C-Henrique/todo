@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { executeBasicAuthenticationService } from "../api/HelloWordApiService";
+import { apiClient } from "../api/apiClient";
 
 export const AuthContext = createContext();
 
@@ -20,6 +21,10 @@ export default function AuthProvider({ children }) {
         setIsAuthenticated(true);
         setUsername(username);
         setToken(bsToken);
+        apiClient.interceptors.request.use(config => {
+          config.headers.Authorization = bsToken
+          return config
+        })
         return true;
       } else {
         logout();
